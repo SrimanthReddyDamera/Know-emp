@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -44,9 +44,29 @@ interface KnowledgeListProps {
 
 export function KnowledgeList({ entries, currentUserId, role }: KnowledgeListProps) {
   const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
+  const searchParams = useSearchParams()
+  const initialQuery = searchParams.get("q") || ""
+  const [searchQuery, setSearchQuery] = useState(initialQuery)
   const [activeTab, setActiveTab] = useState(role === "admin" ? "pending" : "approved")
   const [optimisticEntries, setOptimisticEntries] = useState<KnowledgeEntry[]>(entries)
+
+  // Sync URL with search query (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only push if the query has changed from what's potentially in the URL
+      // We check if we need to update the URL
+      const currentUrlQuery = searchParams.get("q") || ""
+      if (searchQuery !== currentUrlQuery) {
+        if (searchQuery) {
+          router.push(`?q=${encodeURIComponent(searchQuery)}`, { scroll: false })
+        } else {
+           router.push("?", { scroll: false })
+        }
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery, router, searchParams])
 
   // Edit state
   const [editingEntry, setEditingEntry] = useState<KnowledgeEntry | null>(null)

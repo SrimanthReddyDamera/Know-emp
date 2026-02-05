@@ -6,6 +6,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 
+import { DashboardSearch } from "@/components/dashboard-search";
+
 interface EmployeeDashboardProps {
   employee: Employee;
 }
@@ -62,12 +64,15 @@ export async function EmployeeDashboard({ employee }: EmployeeDashboardProps) {
               Welcome back, {employee.full_name}
             </p>
           </div>
-          <Link href="/add-entry">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Knowledge Entry
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <DashboardSearch />
+            <Link href="/add-entry">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Knowledge Entry
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
