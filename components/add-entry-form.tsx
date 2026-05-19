@@ -9,10 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from 'next/navigation';
 
-export function AddEntryForm() {
+interface AddEntryFormProps {
+  role?: "admin" | "employee" | "tech_support";
+}
+
+export function AddEntryForm({ role = "employee" }: AddEntryFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const isAdmin = role === "admin";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,7 +32,12 @@ export function AddEntryForm() {
       setError(result.error);
       setIsLoading(false);
     } else {
-      router.push("/employee/knowledge?filter=my-entries");
+      // Redirect admin to admin knowledge base, others to employee knowledge
+      if (result?.role === "admin") {
+        router.push("/admin/knowledge");
+      } else {
+        router.push("/employee/knowledge?filter=my-entries");
+      }
     }
   }
 
@@ -63,7 +74,7 @@ export function AddEntryForm() {
             <Textarea
               id="solution_steps"
               name="solution_steps"
-              placeholder="1. Step one...&#10;2. Step two..."
+              placeholder={"1. Step one...\n2. Step two..."}
               required
               disabled={isLoading}
               className="min-h-[200px] font-mono text-sm"
@@ -86,7 +97,9 @@ export function AddEntryForm() {
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit for Approval"}
+              {isLoading
+                ? (isAdmin ? "Publishing..." : "Submitting...")
+                : (isAdmin ? "Publish Entry" : "Submit for Approval")}
             </Button>
           </div>
         </form>
@@ -94,3 +107,4 @@ export function AddEntryForm() {
     </Card>
   );
 }
+

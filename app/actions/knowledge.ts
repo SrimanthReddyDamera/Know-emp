@@ -24,12 +24,15 @@ export async function createEntry(formData: FormData) {
     return { error: "All fields are required" }
   }
 
+  // Admin entries are auto-approved; other roles require approval
+  const entryStatus = employee.role === "admin" ? "approved" : "pending"
+
   const { error } = await supabase.from("knowledge_entries").insert({
     title,
     problem_description,
     solution_steps,
     created_by: employee.id,
-    status: "pending", // Always pending initially
+    status: entryStatus,
   })
 
   if (error) {
@@ -38,7 +41,7 @@ export async function createEntry(formData: FormData) {
 
   revalidatePath("/employee/knowledge")
   revalidatePath("/admin/knowledge")
-  return { success: true }
+  return { success: true, role: employee.role }
 }
 
 export async function updateEntry(entryId: string, formData: FormData) {

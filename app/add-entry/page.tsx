@@ -10,17 +10,22 @@ export default async function AddEntryPage() {
     redirect("/login");
   }
 
+  const isAdmin = employee.role === "admin";
+
   return (
     <DashboardLayout employee={employee} role={employee.role}>
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">Add Knowledge Entry</h1>
           <p className="text-muted-foreground mt-2">
-            Share your knowledge with the team. All entries require approval.
+            {isAdmin
+              ? "Share your knowledge with the team. Your entry will be published directly."
+              : "Share your knowledge with the team. All entries require approval."}
           </p>
         </div>
-        <AddEntryForm />
+        <AddEntryForm role={employee.role} />
       </div>
     </DashboardLayout>
   );
 }
+
